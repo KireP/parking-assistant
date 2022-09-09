@@ -1,10 +1,7 @@
 package com.n47.hackdayz.parkingassistant.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -14,7 +11,8 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
-public class Coordinate {
+@EqualsAndHashCode(exclude = "parkingLocation")
+public class Coordinate implements Comparable<Coordinate> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,8 +25,17 @@ public class Coordinate {
     @Column(name = "longitude")
     private Double longitude;
 
+    @Column(name = "creation_order")
+    @JsonIgnore
+    private int order;
+
     @ManyToOne
     @JoinColumn(name = "parking_location_id")
     @JsonIgnore
     private ParkingLocation parkingLocation;
+
+    @Override
+    public int compareTo(Coordinate coordinate) {
+        return order - coordinate.getOrder();
+    }
 }

@@ -11,9 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
@@ -30,8 +29,9 @@ public class ParkingLocationService {
     @Transactional
     public ParkingLocation create(ParkingLocationDTO parkingLocationDTO) {
         var parkingLocation = ParkingLocation.builder()
-                .coordinates(new ArrayList<>())
-                .availabilities(new HashSet<>()).build();
+                .coordinates(new LinkedHashSet<>())
+                .availabilities(new LinkedHashSet<>())
+                .build();
         mapToParkingLocation(parkingLocation, parkingLocationDTO);
         return parkingLocationRepository.save(parkingLocation);
     }
@@ -39,7 +39,7 @@ public class ParkingLocationService {
     @Transactional
     public ParkingLocation update(Long id, ParkingLocationDTO parkingLocationDTO) {
         var parkingLocation = parkingLocationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Parking Location not found"));
+                .orElseThrow(() -> new RuntimeException("Parking location not found"));
         mapToParkingLocation(parkingLocation, parkingLocationDTO);
         return parkingLocationRepository.save(parkingLocation);
     }
@@ -68,30 +68,34 @@ public class ParkingLocationService {
     }
 
     private void setCoordinates(ParkingLocation parkingLocation, ParkingLocationDTO parkingLocationDTO) {
+        var coordinates = new ArrayList<Coordinate>();
+        for (int i = 0; i < parkingLocationDTO.getCoordinates().size(); i++) {
+            var coordinateDTO = parkingLocationDTO.getCoordinates().get(i);
+            coordinates.add(Coordinate.builder()
+                    .latitude(coordinateDTO.getLatitude())
+                    .longitude(coordinateDTO.getLongitude())
+                    .parkingLocation(parkingLocation)
+                    .order(i)
+                    .build());
+        }
         parkingLocation.getCoordinates().clear();
-        parkingLocation.getCoordinates().addAll(
-                parkingLocationDTO.getCoordinates().stream()
-                        .map(coordinateDTO -> Coordinate.builder()
-                                .latitude(coordinateDTO.getLatitude())
-                                .longitude(coordinateDTO.getLongitude())
-                                .parkingLocation(parkingLocation)
-                                .build())
-                        .collect(Collectors.toList())
-        );
+        parkingLocation.getCoordinates().addAll(coordinates);
     }
 
     private void setAvailabilities(ParkingLocation parkingLocation, ParkingLocationDTO parkingLocationDTO) {
+        var availabilities = new ArrayList<Availability>();
+        for (int i = 0; i < parkingLocationDTO.getAvailabilities().size(); i++) {
+            var availabilityDTO = parkingLocationDTO.getAvailabilities().get(i);
+            availabilities.add(Availability.builder()
+                    .day(Day.valueOf(availabilityDTO.getDay()))
+                    .openingHour(availabilityDTO.getOpeningHour())
+                    .closingHour(availabilityDTO.getClosingHour())
+                    .parkingLocation(parkingLocation)
+                    .order(i)
+                    .build());
+        }
         parkingLocation.getAvailabilities().clear();
-        parkingLocation.getAvailabilities().addAll(
-                parkingLocationDTO.getAvailabilities().stream()
-                        .map(availabilityDTO -> Availability.builder()
-                                .day(Day.valueOf(availabilityDTO.getDay()))
-                                .openingHour(availabilityDTO.getOpeningHour())
-                                .closingHour(availabilityDTO.getClosingHour())
-                                .parkingLocation(parkingLocation)
-                                .build())
-                        .collect(Collectors.toList())
-        );
+        parkingLocation.getAvailabilities().addAll(availabilities);
     }
 
     public void deleteParkingLocation(Long id) {

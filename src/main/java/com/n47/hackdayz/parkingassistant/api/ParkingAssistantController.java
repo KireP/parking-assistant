@@ -3,14 +3,14 @@ package com.n47.hackdayz.parkingassistant.api;
 import com.n47.hackdayz.parkingassistant.dto.ParkingLocationDTO;
 import com.n47.hackdayz.parkingassistant.model.ParkingLocation;
 import com.n47.hackdayz.parkingassistant.service.ParkingLocationService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/parking-locations")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ParkingAssistantController {
 
     private final ParkingLocationService parkingLocationService;

@@ -4,16 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.Objects;
 
 @Entity
 @Table(name = "availability")
 @Data
-@EqualsAndHashCode(exclude = "parkingLocation")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
-public class Availability {
+@EqualsAndHashCode(exclude = "parkingLocation")
+public class Availability implements Comparable<Availability> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,8 +29,17 @@ public class Availability {
     @Enumerated(EnumType.STRING)
     private Day day;
 
+    @Column(name = "creation_order")
+    @JsonIgnore
+    private int order;
+
     @ManyToOne
     @JoinColumn(name = "parking_location_id")
     @JsonIgnore
     private ParkingLocation parkingLocation;
+
+    @Override
+    public int compareTo(Availability availability) {
+        return order - availability.getOrder();
+    }
 }

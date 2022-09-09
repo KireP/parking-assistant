@@ -6,8 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.Calendar;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "parking_location")
@@ -39,26 +40,32 @@ public class ParkingLocation {
     private ParkingType type;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "parkingLocation", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Coordinate> coordinates = new ArrayList<>();
+    @OrderBy("order ASC")
+    private Set<Coordinate> coordinates = new LinkedHashSet<>();
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "parkingLocation", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Availability> availabilities = new HashSet<>();
+    @OrderBy("order ASC")
+    private Set<Availability> availabilities = new LinkedHashSet<>();
 
     public String getOpeningHours() {
         String day = getDay();
-
         return this.getAvailabilities().stream()
                 .filter(availability -> day.equalsIgnoreCase(availability.getDay().name()))
-                .findFirst().map(Availability::getOpeningHour).orElse(null);
+                .findFirst()
+                .map(Availability::getOpeningHour)
+                .orElse(null);
     }
 
     public String getClosingHours() {
         String day = getDay();
         return this.getAvailabilities().stream()
                 .filter(availability -> day.equalsIgnoreCase(availability.getDay().name()))
-                .findFirst().map(Availability::getClosingHour).orElse(null);
+                .findFirst()
+                .map(Availability::getClosingHour)
+                .orElse(null);
     }
-    private String getDay(){
+
+    private String getDay() {
         Calendar calendar = Calendar.getInstance();
         int currentDay = calendar.get(Calendar.DAY_OF_WEEK);
         switch (currentDay) {
