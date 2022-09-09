@@ -57,7 +57,7 @@ public class ParkingLocationService {
         parkingLocation.setOpeningHour(parkingLocationDTO.getOpeningHour());
         parkingLocation.setClosingHour(parkingLocationDTO.getClosingHour());
         parkingLocation.getCoordinates().clear();
-        parkingLocation.setCoordinates(
+        parkingLocation.getCoordinates().addAll(
                 parkingLocationDTO.getCoordinates().stream()
                         .map(coordinateDTO -> Coordinate.builder()
                                 .latitude(coordinateDTO.getLatitude())

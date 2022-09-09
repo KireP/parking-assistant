@@ -1,5 +1,6 @@
 package com.n47.hackdayz.parkingassistant.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,5 +29,6 @@ public class Coordinate {
 
     @ManyToOne
     @JoinColumn(name = "parking_location_id")
+    @JsonIgnore
     private ParkingLocation parkingLocation;
 }
