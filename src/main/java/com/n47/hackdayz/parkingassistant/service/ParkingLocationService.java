@@ -3,6 +3,7 @@ package com.n47.hackdayz.parkingassistant.service;
 import com.n47.hackdayz.parkingassistant.dto.ParkingLocationDTO;
 import com.n47.hackdayz.parkingassistant.model.Availability;
 import com.n47.hackdayz.parkingassistant.model.Coordinate;
+import com.n47.hackdayz.parkingassistant.model.Day;
 import com.n47.hackdayz.parkingassistant.model.ParkingLocation;
 import com.n47.hackdayz.parkingassistant.repository.ParkingLocationRepository;
 import lombok.RequiredArgsConstructor;
@@ -84,7 +85,7 @@ public class ParkingLocationService {
         parkingLocation.getAvailabilities().addAll(
                 parkingLocationDTO.getAvailabilities().stream()
                         .map(availabilityDTO -> Availability.builder()
-                                .day(availabilityDTO.getDay())
+                                .day(Day.valueOf(availabilityDTO.getDay()))
                                 .openingHour(availabilityDTO.getOpeningHour())
                                 .closingHour(availabilityDTO.getClosingHour())
                                 .parkingLocation(parkingLocation)

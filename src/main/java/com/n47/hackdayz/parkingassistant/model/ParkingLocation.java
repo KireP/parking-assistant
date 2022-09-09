@@ -6,10 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
 
 @Entity
 @Table(name = "parking_location")
@@ -45,4 +43,39 @@ public class ParkingLocation {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "parkingLocation", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Availability> availabilities = new HashSet<>();
+
+    public String getOpeningHours() {
+        String day = getDay();
+
+        return this.getAvailabilities().stream()
+                .filter(availability -> day.equalsIgnoreCase(availability.getDay().name()))
+                .findFirst().map(Availability::getOpeningHour).orElse(null);
+    }
+
+    public String getClosingHours() {
+        String day = getDay();
+        return this.getAvailabilities().stream()
+                .filter(availability -> day.equalsIgnoreCase(availability.getDay().name()))
+                .findFirst().map(Availability::getClosingHour).orElse(null);
+    }
+    private String getDay(){
+        Calendar calendar = Calendar.getInstance();
+        int currentDay = calendar.get(Calendar.DAY_OF_WEEK);
+        switch (currentDay) {
+            case Calendar.MONDAY:
+                return "MONDAY";
+            case Calendar.TUESDAY:
+                return "TUESDAY";
+            case Calendar.WEDNESDAY:
+                return "WEDNESDAY";
+            case Calendar.THURSDAY:
+                return "THURSDAY";
+            case Calendar.FRIDAY:
+                return "FRIDAY";
+            case Calendar.SATURDAY:
+                return "SATURDAY";
+            default:
+                return "SUNDAY";
+        }
+    }
 }

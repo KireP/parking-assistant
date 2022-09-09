@@ -27,7 +27,8 @@ public class Availability {
     private String closingHour;
 
     @Column(name = "day")
-    private String day;
+    @Enumerated(EnumType.STRING)
+    private Day day;
 
     @ManyToOne
     @JoinColumn(name = "parking_location_id")
