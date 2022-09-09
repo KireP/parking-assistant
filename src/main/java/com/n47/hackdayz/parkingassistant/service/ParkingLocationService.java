@@ -1,6 +1,7 @@
 package com.n47.hackdayz.parkingassistant.service;
 
 import com.n47.hackdayz.parkingassistant.dto.ParkingLocationDTO;
+import com.n47.hackdayz.parkingassistant.model.Availability;
 import com.n47.hackdayz.parkingassistant.model.Coordinate;
 import com.n47.hackdayz.parkingassistant.model.ParkingLocation;
 import com.n47.hackdayz.parkingassistant.repository.ParkingLocationRepository;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +28,9 @@ public class ParkingLocationService {
 
     @Transactional
     public ParkingLocation create(ParkingLocationDTO parkingLocationDTO) {
-        var parkingLocation = ParkingLocation.builder().coordinates(new ArrayList<>()).build();
+        var parkingLocation = ParkingLocation.builder()
+                .coordinates(new ArrayList<>())
+                .availabilities(new HashSet<>()).build();
         mapToParkingLocation(parkingLocation, parkingLocationDTO);
         return parkingLocationRepository.save(parkingLocation);
     }
@@ -58,12 +62,7 @@ public class ParkingLocationService {
         if (nonNull(parkingLocationDTO.getZone())) {
             parkingLocation.setZone(parkingLocationDTO.getZone());
         }
-        if (nonNull(parkingLocationDTO.getOpeningHour())) {
-            parkingLocation.setOpeningHour(parkingLocationDTO.getOpeningHour());
-        }
-        if (nonNull(parkingLocationDTO.getClosingHour())) {
-            parkingLocation.setClosingHour(parkingLocationDTO.getClosingHour());
-        }
+        setAvailabilities(parkingLocation, parkingLocationDTO);
         setCoordinates(parkingLocation, parkingLocationDTO);
     }
 
@@ -74,6 +73,20 @@ public class ParkingLocationService {
                         .map(coordinateDTO -> Coordinate.builder()
                                 .latitude(coordinateDTO.getLatitude())
                                 .longitude(coordinateDTO.getLongitude())
+                                .parkingLocation(parkingLocation)
+                                .build())
+                        .collect(Collectors.toList())
+        );
+    }
+
+    private void setAvailabilities(ParkingLocation parkingLocation, ParkingLocationDTO parkingLocationDTO) {
+        parkingLocation.getAvailabilities().clear();
+        parkingLocation.getAvailabilities().addAll(
+                parkingLocationDTO.getAvailabilities().stream()
+                        .map(availabilityDTO -> Availability.builder()
+                                .day(availabilityDTO.getDay())
+                                .openingHour(availabilityDTO.getOpeningHour())
+                                .closingHour(availabilityDTO.getClosingHour())
                                 .parkingLocation(parkingLocation)
                                 .build())
                         .collect(Collectors.toList())

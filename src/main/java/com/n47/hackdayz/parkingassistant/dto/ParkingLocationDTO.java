@@ -20,7 +20,6 @@ public class ParkingLocationDTO {
     private String company;
     private String companyPhoneNumber;
     private ParkingType type;
-    private String openingHour;
-    private String closingHour;
     private List<CoordinateDTO> coordinates = new ArrayList<>();
+    private List<AvailabilityDTO> availabilities = new ArrayList<>();
 }

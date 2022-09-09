@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "parking_location")
@@ -38,12 +40,9 @@ public class ParkingLocation {
     @Enumerated(EnumType.STRING)
     private ParkingType type;
 
-    @Column(name = "opening_hour")
-    private String openingHour;
-
-    @Column(name = "closing_hour")
-    private String closingHour;
-
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "parkingLocation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Coordinate> coordinates = new ArrayList<>();
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "parkingLocation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Availability> availabilities = new HashSet<>();
 }
