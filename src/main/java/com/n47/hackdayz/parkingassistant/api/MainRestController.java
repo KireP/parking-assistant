@@ -13,6 +13,6 @@ public class MainRestController {
 
     @GetMapping
     public Map<String, String> test() {
-        return Collections.singletonMap("message", "OK");
+        return Collections.singletonMap("messages", "OK");
     }
 }
