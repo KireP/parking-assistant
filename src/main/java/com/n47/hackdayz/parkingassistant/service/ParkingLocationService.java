@@ -8,8 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.nonNull;
 
 @Service
 @RequiredArgsConstructor
@@ -23,25 +26,8 @@ public class ParkingLocationService {
 
     @Transactional
     public ParkingLocation create(ParkingLocationDTO parkingLocationDTO) {
-        var parkingLocation =
-                ParkingLocation.builder()
-                        .price(parkingLocationDTO.getPrice())
-                        .zone(parkingLocationDTO.getZone())
-                        .company(parkingLocationDTO.getCompany())
-                        .companyPhoneNumber(parkingLocationDTO.getCompanyPhoneNumber())
-                        .type(parkingLocationDTO.getType())
-                        .openingHour(parkingLocationDTO.getOpeningHour())
-                        .closingHour(parkingLocationDTO.getClosingHour())
-                        .build();
-        parkingLocation.setCoordinates(
-                parkingLocationDTO.getCoordinates().stream()
-                        .map(coordinateDTO -> Coordinate.builder()
-                                .latitude(coordinateDTO.getLatitude())
-                                .longitude(coordinateDTO.getLongitude())
-                                .parkingLocation(parkingLocation)
-                                .build())
-                        .collect(Collectors.toList())
-        );
+        var parkingLocation = ParkingLocation.builder().coordinates(new ArrayList<>()).build();
+        mapToParkingLocation(parkingLocation, parkingLocationDTO);
         return parkingLocationRepository.save(parkingLocation);
     }
 
@@ -49,13 +35,39 @@ public class ParkingLocationService {
     public ParkingLocation update(Long id, ParkingLocationDTO parkingLocationDTO) {
         var parkingLocation = parkingLocationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Parking Location not found"));
-        parkingLocation.setPrice(parkingLocationDTO.getPrice());
-        parkingLocation.setZone(parkingLocationDTO.getZone());
-        parkingLocation.setCompany(parkingLocationDTO.getCompany());
-        parkingLocation.setCompanyPhoneNumber(parkingLocationDTO.getCompanyPhoneNumber());
-        parkingLocation.setType(parkingLocationDTO.getType());
-        parkingLocation.setOpeningHour(parkingLocationDTO.getOpeningHour());
-        parkingLocation.setClosingHour(parkingLocationDTO.getClosingHour());
+        mapToParkingLocation(parkingLocation, parkingLocationDTO);
+        return parkingLocationRepository.save(parkingLocation);
+    }
+
+    private void mapToParkingLocation(ParkingLocation parkingLocation, ParkingLocationDTO parkingLocationDTO) {
+        if (nonNull(parkingLocationDTO.getPrice())) {
+            parkingLocation.setPrice(parkingLocationDTO.getPrice());
+        }
+        if (nonNull(parkingLocationDTO.getZone())) {
+            parkingLocation.setZone(parkingLocationDTO.getZone());
+        }
+        if (nonNull(parkingLocationDTO.getCompany())) {
+            parkingLocation.setCompany(parkingLocationDTO.getCompany());
+        }
+        if (nonNull(parkingLocationDTO.getCompanyPhoneNumber())) {
+            parkingLocation.setCompanyPhoneNumber(parkingLocationDTO.getCompanyPhoneNumber());
+        }
+        if (nonNull(parkingLocationDTO.getType())) {
+            parkingLocation.setType(parkingLocationDTO.getType());
+        }
+        if (nonNull(parkingLocationDTO.getZone())) {
+            parkingLocation.setZone(parkingLocationDTO.getZone());
+        }
+        if (nonNull(parkingLocationDTO.getOpeningHour())) {
+            parkingLocation.setOpeningHour(parkingLocationDTO.getOpeningHour());
+        }
+        if (nonNull(parkingLocationDTO.getClosingHour())) {
+            parkingLocation.setClosingHour(parkingLocationDTO.getClosingHour());
+        }
+        setCoordinates(parkingLocation, parkingLocationDTO);
+    }
+
+    private void setCoordinates(ParkingLocation parkingLocation, ParkingLocationDTO parkingLocationDTO) {
         parkingLocation.getCoordinates().clear();
         parkingLocation.getCoordinates().addAll(
                 parkingLocationDTO.getCoordinates().stream()
@@ -66,7 +78,6 @@ public class ParkingLocationService {
                                 .build())
                         .collect(Collectors.toList())
         );
-        return parkingLocationRepository.save(parkingLocation);
     }
 
     public void deleteParkingLocation(Long id) {
